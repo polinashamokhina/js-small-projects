@@ -3,9 +3,9 @@ const taskInput = document.querySelector("#taskInput");
 const taskList = document.querySelector("#taskList"); // object and not an array
 let allTasks = [];
 
-window.onload = function(){ // обьект окно, запускаем нашу функцию при загрузке страницы
-    // проверить есть ли уже что тоб а если есть - парсимб а если нет - то создать ключ, 
+window.onload = render_tasks();
 
+function render_tasks(){
     if (!localStorage.getItem("tasks")){
         localStorage.setItem("tasks", JSON.stringify(allTasks));
     }
@@ -14,25 +14,27 @@ window.onload = function(){ // обьект окно, запускаем наш�
     }
 
     for (let i = 0; i < allTasks.length; i++) {
-        printTask(allTasks[i], i); 
+        printTask(allTasks[i], i+1); 
       }
 
     console.log(allTasks);
+}
 
-}; 
+function delete_task(li_elem, task){
+    allTasks = allTasks.filter(x => x !== task);
+    localStorage.setItem("tasks", JSON.stringify(allTasks));
+    document.getElementById("taskList").innerHTML = "";
+    
+    render_tasks();
+};
 
-function printTask(task, index){
+function printTask(task, number){
     const li_elem = document.createElement("li");
 
     const deleteButton = document.createElement("button");
-    deleteButton.addEventListener("click", function(){
-        allTasks = allTasks.filter(x => x !== task);
-        console.log(allTasks, task);
-        localStorage.setItem("tasks", JSON.stringify(allTasks));
-        taskList.removeChild(li_elem);
-    });
+    deleteButton.addEventListener("click", () => delete_task(li_elem, task));
     
-    li_elem.innerText = task;
+    li_elem.innerText = number + ". " + task;
     deleteButton.innerText = "Delete";
 
     li_elem.classList.add("task-item");
@@ -45,9 +47,7 @@ function printTask(task, index){
 
 addButton.addEventListener("click", function(){
 
-    i = allTasks.length + 1
-    task = i + ". " + taskInput.value
-    printTask(task, i-1);
+    printTask(taskInput.value, allTasks.length+1);
 
     allTasks.push(taskInput.value);
     localStorage.setItem("tasks", JSON.stringify(allTasks));
